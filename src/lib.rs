@@ -164,6 +164,11 @@ fn truncate_body(body: String, max_len: usize) -> (String, bool) {
     (truncated, true)
 }
 
+/// HTTP client tools for fetching web resources.
+///
+/// Provides native HTTP access with SSRF prevention, timeouts, and payload
+/// limits enforced by the host. Response bodies are truncated to 200 KB to
+/// protect the LLM context window.
 #[capsule]
 impl HttpTools {
     /// Fetch a URL over HTTP/HTTPS.
