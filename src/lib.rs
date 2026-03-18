@@ -52,16 +52,6 @@ pub struct FetchUrlArgs {
     pub body: Option<String>,
 }
 
-/// The request format expected by the host's `astrid_http_request`.
-#[derive(Serialize)]
-struct HostHttpRequest<'a> {
-    url: &'a str,
-    method: &'a str,
-    headers: HashMap<String, String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    body: Option<String>,
-}
-
 /// The response format returned by the host.
 #[derive(Deserialize)]
 struct HostHttpResponse {
@@ -190,7 +180,7 @@ impl HttpTools {
             .map_err(SysError::ApiError)?;
 
         let mut req = http::Request::new(method.as_str(), url);
-        for (k, v) in args.headers.unwrap_or_default() {
+        for (k, v) in args.headers.into_iter().flatten() {
             req = req.header(k, v);
         }
         if let Some(body) = args.body {
