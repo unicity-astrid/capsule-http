@@ -189,19 +189,17 @@ impl HttpTools {
             .parse()
             .map_err(SysError::ApiError)?;
 
-        let request = HostHttpRequest {
-            url,
-            method: method.as_str(),
-            headers: args.headers.unwrap_or_default(),
-            body: args.body,
-        };
+        let mut req = http::Request::new(method.as_str(), url);
+        for (k, v) in args.headers.unwrap_or_default() {
+            req = req.header(k, v);
+        }
+        if let Some(body) = args.body {
+            req = req.body(body);
+        }
 
-        let request_bytes =
-            serde_json::to_vec(&request).map_err(|e| SysError::ApiError(e.to_string()))?;
-
-        let response_bytes = http::request_bytes(&request_bytes)?;
-
-        let response: HostHttpResponse = serde_json::from_slice(&response_bytes)
+        let response = http::send(&req)?;
+        let response: HostHttpResponse = response
+            .json()
             .map_err(|e| SysError::ApiError(format!("failed to parse host response: {e}")))?;
 
         let (body, truncated) = truncate_body(response.body, MAX_RESPONSE_BODY_LEN);
