@@ -14,9 +14,11 @@ type = "executable"
 net = ["*"]
 
 [publish]
-"tool.v1.execute.*.result" = { wit = "TODO" }
+"tool.v1.execute.*.result" = { wit = "@unicity-astrid/wit/types/tool-call-result" }
+# TODO: no canonical WIT type yet for tool describe response envelope
 "tool.v1.response.describe.*" = { wit = "TODO" }
 
 [subscribe]
-"tool.v1.execute.fetch_url" = { wit = "TODO", handler = "tool_execute_fetch_url" }
+"tool.v1.execute.fetch_url" = { wit = "@unicity-astrid/wit/types/tool-call", handler = "tool_execute_fetch_url" }
+# TODO: no canonical WIT type yet for tool describe request envelope
 "tool.v1.request.describe" = { wit = "TODO", handler = "tool_describe" }
