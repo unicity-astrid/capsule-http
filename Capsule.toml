@@ -12,13 +12,11 @@ type = "executable"
 
 [capabilities]
 net = ["*"]
-ipc_publish = ["tool.v1.execute.*.result", "tool.v1.response.describe.*"]
-ipc_subscribe = ["tool.v1.execute.fetch_url", "tool.v1.request.describe"]
 
-[[interceptor]]
-event = "tool.v1.execute.fetch_url"
-action = "tool_execute_fetch_url"
+[publish]
+"tool.v1.execute.*.result" = { wit = "TODO" }
+"tool.v1.response.describe.*" = { wit = "TODO" }
 
-[[interceptor]]
-event = "tool.v1.request.describe"
-action = "tool_describe"
+[subscribe]
+"tool.v1.execute.fetch_url" = { wit = "TODO", handler = "tool_execute_fetch_url" }
+"tool.v1.request.describe" = { wit = "TODO", handler = "tool_describe" }
