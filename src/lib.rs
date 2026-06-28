@@ -24,6 +24,7 @@
 
 use std::collections::HashMap;
 use std::str::FromStr;
+use std::time::Duration;
 
 use astrid_sdk::prelude::*;
 use astrid_sdk::schemars;
@@ -55,7 +56,17 @@ pub struct FetchUrlArgs {
     pub headers: Option<HashMap<String, String>>,
     /// Optional request body (for POST/PUT/PATCH).
     pub body: Option<String>,
+    /// Optional total request timeout in milliseconds. Defaults to
+    /// [`DEFAULT_FETCH_TIMEOUT_MS`] (30 s). Bounds the WHOLE request so a slow
+    /// or hung endpoint fails fast instead of stalling the agent turn — we set
+    /// this explicitly because the host's default buffered timeout is not
+    /// reliably enforced (astrid#1078: a bare `http-request` hung ~120 s).
+    pub timeout_ms: Option<u64>,
 }
+
+/// Default total request timeout (30 s) — matches the host's documented
+/// buffered-request contract, but sent explicitly so it actually takes effect.
+const DEFAULT_FETCH_TIMEOUT_MS: u64 = 30_000;
 
 /// The structured response returned to the LLM.
 #[derive(Serialize)]
@@ -176,7 +187,15 @@ impl HttpTools {
             .parse()
             .map_err(SysError::ApiError)?;
 
-        let mut req = http::Request::new(method.as_str(), url);
+        // Bound the request explicitly via the @1.1.0 options path
+        // (`Request::timeout` → `total-ms`). The host's DEFAULT buffered timeout
+        // is not reliably enforced on the bare `http-request` op (astrid#1078:
+        // observed ~120 s hangs on instantly-reachable URLs), so relying on it
+        // lets a single fetch stall the whole agent turn until the consumer's
+        // tool-stall watchdog fires. Sending an explicit `total-ms` makes the
+        // request fail fast with a clean `timeout` error instead.
+        let timeout = Duration::from_millis(args.timeout_ms.unwrap_or(DEFAULT_FETCH_TIMEOUT_MS));
+        let mut req = http::Request::new(method.as_str(), url).timeout(timeout);
         for (k, v) in args.headers.into_iter().flatten() {
             req = req.header(k, v);
         }
