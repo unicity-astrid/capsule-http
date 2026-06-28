@@ -13,6 +13,7 @@ In the OS model, this capsule is the network stack's user-space interface. It gi
 
 - **URL validation:** Rejects empty URLs and non-http(s) schemes (case-insensitive)
 - **Method allowlist:** GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS. TRACE, CONNECT, and others are rejected.
+- **Timeout:** `timeout_ms` optionally tightens the total request deadline. It defaults to 30 seconds and is capped at 30 seconds.
 - **Response truncation:** 200KB soft limit with UTF-8 boundary-safe truncation. The host enforces a 10MB hard cap.
 - **Error handling:** HTTP error statuses (4xx/5xx) are returned as data so the agent can reason about them. Only infrastructure failures (DNS, timeout, SSRF block) produce errors.
 

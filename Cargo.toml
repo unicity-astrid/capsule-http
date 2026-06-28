@@ -10,10 +10,10 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-# Requires the per-request timeout API (`Request::timeout` → @1.1.0
-# `request-options`/`total-ms`), added after astrid-sdk 0.7.0 — needs the 0.8
-# release. v0.7 has no caller-side timeout knob on the buffered path.
-astrid-sdk = { version = "0.8", features = ["derive"] }
+# Requires the per-request timeout API (`Request::timeout` -> @1.1.0
+# `request-options`/`total-ms`). Pin to the SDK 0.8.0 release commit until
+# astrid-sdk 0.8.0 is published on crates.io.
+astrid-sdk = { git = "https://github.com/unicity-astrid/sdk-rust.git", rev = "afaf3f6e6b49d6b8e101c75a5138ae7e55a1de28", version = "0.8.0", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
